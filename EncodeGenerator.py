@@ -2,8 +2,18 @@ import cv2
 import face_recognition
 import pickle
 import os
+import firebase_admin
+from firebase_admin import credentials,db,storage
 
-folderPath="D:\Python\Face-Recognition\Images"
+
+cred = credentials.Certificate("D:\Python\Face-Recognition\serviceAccountKey.json")
+firebase_admin.initialize_app(cred,{
+    'databaseURL':"https://facerecognitioncv-default-rtdb.firebaseio.com/",
+    "storageBucket":"facerecognitioncv.appspot.com"
+})
+ref=db.reference('employee')
+
+folderPath="Images"
 pathList=os.listdir(folderPath)
 # print(PathList)
 imgList=[]
@@ -11,6 +21,11 @@ studId=[]
 for path in pathList:
     imgList.append(cv2.imread(os.path.join(folderPath,path)))
     studId.append(os.path.splitext(path)[0])
+    filename= f'{folderPath}/{path}'
+    bucket=storage.bucket()
+    blob=bucket.blob(filename)
+    blob.upload_from_filename(filename)
+
 # print(len(imgList))
 # print(studId)
 
